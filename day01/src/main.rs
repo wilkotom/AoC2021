@@ -14,10 +14,8 @@ fn part1(numbers: &Vec<i32>) -> i32 {
             increment_count +=1
         }
         last_value = *num;
-    
     }
     increment_count
-
 }
 
 fn part2(numbers: &Vec<i32>) -> i32 {
@@ -25,8 +23,7 @@ fn part2(numbers: &Vec<i32>) -> i32 {
     let mut current_value = numbers[0]+ numbers[1] + numbers[2];
     sliding.push(current_value);
     for i in 1..numbers.len()-2 {
-        current_value -= numbers[i-1];
-        current_value += numbers[i+2];
+        current_value += numbers[i+2] - numbers[i-1];
         sliding.push(current_value);
     }
     part1(&sliding)

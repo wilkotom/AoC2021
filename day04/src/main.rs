@@ -27,42 +27,45 @@ fn main() {
         }
         cards.push(parsed_card);
     }
-    play_bingo(&mut cards, &bingo_numbers, true);
+    play_bingo(&mut cards, &bingo_numbers);
 }
 
-fn play_bingo(cards: &mut Vec<HashMap<isize,BingoCardSquare>>, bingo_numbers: &Vec<isize>, first_winner: bool){
+fn play_bingo(cards: &mut Vec<HashMap<isize,BingoCardSquare>>, bingo_numbers: &Vec<isize>){
+    let mut first_winner = true;
     let mut last_drawn_number: isize = -1;
     let mut score: isize = -1;
-    let mut winning_card = usize::MAX;
-    for number in bingo_numbers {
-        last_drawn_number = *number;
-        for card in cards.iter_mut() {
-            if card.contains_key(&number) {
-                card.get_mut(&number).unwrap().marked = true;
+    while cards.len() > 1 {
+        let mut winning_card = usize::MAX;
+        for number in bingo_numbers {
+            last_drawn_number = *number;
+            for card in cards.iter_mut() {
+                if card.contains_key(&number) {
+                    card.get_mut(&number).unwrap().marked = true;
+                }
             }
-        }
-        for i in 0..cards.len() {
-            if is_winner(&cards[i]) {
-                winning_card = i;
-                score = winning_score(&cards[i]);
-            } else {
+            for i in 0..cards.len() {
+                if is_winner(&cards[i]) {
+                    winning_card = i;
+                    score = winning_score(&cards[i]);
+                } else {
 
+                }
+            }
+            if winning_card != usize::MAX {
+                break;
             }
         }
-        if winning_card != usize::MAX {
-            break;
+        if first_winner {
+            println!("Part 1 answer: {}", last_drawn_number * score);
+            first_winner = false;
         }
-    }
-    if first_winner {
-        println!("Part 1 answer: {}", last_drawn_number * score);
-    }
-    if cards.len() > 1 {
         cards.swap_remove(winning_card);
-        play_bingo(cards, bingo_numbers, false)
-    } else {
-        println!("Part 2 answer: {}", last_drawn_number * score);
+    
+    }
+    
+    println!("Part 2 answer: {}", last_drawn_number * score);
 
-    } 
+     
 }
 
 fn is_winner(card: &HashMap<isize,BingoCardSquare>) -> bool {
