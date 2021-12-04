@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(Debug,Hash,Eq,PartialEq, Copy, Clone)]
-struct BingoNumber {
+struct BingoCardSquare {
     marked: bool,
     location: Coordinate
 }
@@ -16,13 +16,13 @@ fn main() {
     let input = std::fs::read_to_string("./input.txt").unwrap();
     let split_data = input.split("\n\n").collect::<Vec<_>>();
     let bingo_numbers = split_data[0].split(",").map(|x| x.parse::<isize>().unwrap()).collect::<Vec<_>>();
-    let mut cards: Vec<HashMap<isize,BingoNumber>> = Vec::new();
+    let mut cards: Vec<HashMap<isize,BingoCardSquare>> = Vec::new();
 
     for card in &split_data[1..] {
-        let mut parsed_card: HashMap<isize, BingoNumber> = HashMap::new();
+        let mut parsed_card: HashMap<isize, BingoCardSquare> = HashMap::new();
         for (y, line) in card.split("\n").enumerate() {
             for (x, number) in line.split_ascii_whitespace().map(|n| n.parse::<isize>().unwrap()).enumerate() {
-                parsed_card.insert(number, BingoNumber{location: Coordinate{x,y}, marked: false});
+                parsed_card.insert(number, BingoCardSquare{location: Coordinate{x,y}, marked: false});
             }
         }
         cards.push(parsed_card);
@@ -30,7 +30,7 @@ fn main() {
     play_bingo(&mut cards, &bingo_numbers, true);
 }
 
-fn play_bingo(cards: &mut Vec<HashMap<isize,BingoNumber>>, bingo_numbers: &Vec<isize>, first_winner: bool){
+fn play_bingo(cards: &mut Vec<HashMap<isize,BingoCardSquare>>, bingo_numbers: &Vec<isize>, first_winner: bool){
     let mut last_drawn_number: isize = -1;
     let mut score: isize = -1;
     let mut winning_card = usize::MAX;
@@ -65,28 +65,14 @@ fn play_bingo(cards: &mut Vec<HashMap<isize,BingoNumber>>, bingo_numbers: &Vec<i
     } 
 }
 
-fn is_winner(card: &HashMap<isize,BingoNumber>) -> bool {
-    let mut coord_mappings: HashMap<Coordinate,bool> = HashMap::new();
+fn is_winner(card: &HashMap<isize,BingoCardSquare>) -> bool {
+    let coord_mappings = card.values().map(|v| (v.location, v.marked)).collect::<HashMap<_,_>>();
+    (0..5).map(|x| (0..5).map(|y| *coord_mappings.get(&Coordinate{x,y}).unwrap()).all(|v| v)).any(|v| v) ||  
+    (0..5).map(|y| (0..5).map(|x| *coord_mappings.get(&Coordinate{x,y}).unwrap()).all(|v| v)).any(|v| v)
 
-    for (_, bingo_num) in card {
-        coord_mappings.insert(bingo_num.location, bingo_num.marked);
-    }
-
-    for x in 0..5 {
-        if (0..5).map(|y| *coord_mappings.get(&Coordinate{x,y}).unwrap()).all(|v| v) {
-            return true;
-        }
-    }
-
-    for y in 0..5 {
-        if (0..5).map(|x| *coord_mappings.get(&Coordinate{x,y}).unwrap()).all(|v| v) {
-            return true;
-        }
-    }    
-    false
 }
 
-fn winning_score(card: &HashMap<isize,BingoNumber>) -> isize {
+fn winning_score(card: &HashMap<isize,BingoCardSquare>) -> isize {
     let mut total: isize = 0;
     for (number, details) in card {
         if !details.marked {
