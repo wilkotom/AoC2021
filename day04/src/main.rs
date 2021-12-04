@@ -39,9 +39,7 @@ fn play_bingo(cards: &mut Vec<HashMap<isize,BingoCardSquare>>, bingo_numbers: &V
         for number in bingo_numbers {
             last_drawn_number = *number;
             for card in cards.iter_mut() {
-                if card.contains_key(&number) {
-                    card.get_mut(&number).unwrap().marked = true;
-                }
+                card.get_mut(&number).unwrap_or(&mut BingoCardSquare{marked: true, location:Coordinate{x:usize::MAX, y:usize::MAX}}).marked = true;
             }
             for i in 0..cards.len() {
                 if is_winner(&cards[i]) {
