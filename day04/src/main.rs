@@ -45,8 +45,7 @@ fn play_bingo(cards: &mut Vec<HashMap<isize,BingoCardSquare>>, bingo_numbers: &V
                 if is_winner(&cards[i]) {
                     winning_card = i;
                     score = winning_score(&cards[i]);
-                } else {
-
+                    break;
                 }
             }
             if winning_card != usize::MAX {
@@ -60,17 +59,13 @@ fn play_bingo(cards: &mut Vec<HashMap<isize,BingoCardSquare>>, bingo_numbers: &V
         cards.swap_remove(winning_card);
     
     }
-    
     println!("Part 2 answer: {}", last_drawn_number * score);
-
-     
 }
 
 fn is_winner(card: &HashMap<isize,BingoCardSquare>) -> bool {
     let coord_mappings = card.values().map(|v| (v.location, v.marked)).collect::<HashMap<_,_>>();
     (0..5).map(|x| (0..5).map(|y| *coord_mappings.get(&Coordinate{x,y}).unwrap()).all(|v| v)).any(|v| v) ||  
     (0..5).map(|y| (0..5).map(|x| *coord_mappings.get(&Coordinate{x,y}).unwrap()).all(|v| v)).any(|v| v)
-
 }
 
 fn winning_score(card: &HashMap<isize,BingoCardSquare>) -> isize {
