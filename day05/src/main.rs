@@ -10,9 +10,9 @@ fn main() {
     let mut part1_map: HashMap<Coordinate,isize> = HashMap::new();
     let mut part2_map: HashMap<Coordinate,isize> = HashMap::new();
     for line in data.split("\n"){
-        let points = line.split(" -> ").collect::<Vec<_>>();
-        let start = to_coordinate(&points[0]);
-        let end = to_coordinate(&points[1]);        
+        let mut points = line.split(" -> ");
+        let start = to_coordinate(points.next().unwrap());
+        let end = to_coordinate(points.next().unwrap());
         if start.x == end.x {
             for y in std::cmp::min(start.y, end.y)..std::cmp::max(start.y, end.y) + 1 {
                 part1_map.insert(Coordinate{x: start.x,y}, part1_map.get(&Coordinate{x: start.x,y}).unwrap_or(&0) + 1);
@@ -38,8 +38,8 @@ fn main() {
 }
 
 fn to_coordinate(coords: &str) -> Coordinate {
-    let axes = coords.split(",").collect::<Vec<_>>();
-    let x = axes[0].parse::<isize>().unwrap();
-    let y = axes[1].parse::<isize>().unwrap();
+    let mut axes = coords.split(",");
+    let x = axes.next().unwrap().parse::<isize>().unwrap();
+    let y = axes.next().unwrap().parse::<isize>().unwrap();
     Coordinate{x,y}
 }
