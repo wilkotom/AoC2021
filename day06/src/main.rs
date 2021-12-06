@@ -1,7 +1,5 @@
-use std::collections::VecDeque;
-
 fn main() {
-    let mut lanternfish = VecDeque::from(vec![0 as usize; 9]);
+    let mut lanternfish = vec![0 as usize; 9];
     for fish in std::fs::read_to_string("./input.txt").unwrap().split(",").map(|x| x.parse::<usize>().unwrap()){
         lanternfish[fish] += 1;
     }
