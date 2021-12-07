@@ -10,7 +10,7 @@ fn main() {
         let mut part2_fuel = 0;
         for sub in &input {
             let dist = isize::abs(sub - dest);
-            part1_fuel += dist; //* number;
+            part1_fuel += dist;
             part2_fuel += dist * (dist +1) / 2;
         }
         if part1_fuel < min_fuel_part1 {
