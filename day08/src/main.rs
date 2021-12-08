@@ -11,8 +11,6 @@ fn main() {
         let output_section = split.next().unwrap();
         let mut unconsidered = input_section.split(" ").collect::<VecDeque<_>>();
         while number_mappings.len() < 10 {
-            let nl = number_mappings.len();
-            let ul = unconsidered.len();
             let word = unconsidered.pop_front().unwrap();
             let word_set = word.chars().collect::<HashSet<_>>();
             match word_set.len() {
@@ -44,11 +42,8 @@ fn main() {
                     } else {
                         unconsidered.push_back(word)
                     }
-                }, 
+                },
                 _ => {}
-            }
-            if number_mappings.len() == nl && unconsidered.len() != ul {
-                println!(" DANGER WILL ROBINSON");
             }
         }
         let mut output = 0;
