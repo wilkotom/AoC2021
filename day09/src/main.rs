@@ -1,6 +1,5 @@
 use std::collections::{HashMap, VecDeque};
 
-
 #[derive(Debug,Copy,Clone,Hash,Eq,PartialEq)]
 struct Coordinate {
     x: isize,
@@ -64,7 +63,7 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
     }
     let mut sizes = basin_sizes.values().collect::<Vec<_>>();
     sizes.sort_by(|a, b| b.cmp(a));
-   sizes[0] * sizes[1] * sizes[2]
+    sizes[0] * sizes[1] * sizes[2]
 }
 
 
