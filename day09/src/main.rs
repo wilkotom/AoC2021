@@ -46,15 +46,13 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
                 size +=1;
                 let height = *map.get(&c).unwrap();
                 map.remove(&c);
-                if height != 8 {
-                    for n in get_neighbours(&c) {
-                        let nh = *map.get(&n).unwrap_or(&isize::MAX);
-                        if nh > height && nh != 9{
-                            considered.push_back(n);
-                        }
-                        if nh == 9 {
-                            map.remove(&n);
-                        }
+                for n in get_neighbours(&c) {
+                    let nh = *map.get(&n).unwrap_or(&isize::MAX);
+                    if nh > height && nh != 9{
+                        considered.push_back(n);
+                    }
+                    if nh == 9 {
+                        map.remove(&n);
                     }
                 }
             }
