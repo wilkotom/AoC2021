@@ -48,7 +48,7 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
                 map.remove(&c);
                 for n in get_neighbours(&c) {
                     let nh = *map.get(&n).unwrap_or(&isize::MAX);
-                    if nh > height && nh != 9{
+                    if nh > height && nh < 9{
                         considered.push_back(n);
                     }
                 }
@@ -60,7 +60,6 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
     sizes.sort_by(|a, b| b.cmp(a));
     sizes[0] * sizes[1] * sizes[2]
 }
-
 
 fn get_neighbours(c: &Coordinate) -> Vec<Coordinate> {
     vec![Coordinate{x: c.x-1, y: c.y},Coordinate{x: c.x+1, y: c.y}, Coordinate{x: c.x, y: c.y+1}, Coordinate{x: c.x, y: c.y-1} ]
