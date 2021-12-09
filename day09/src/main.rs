@@ -51,9 +51,6 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
                     if nh > height && nh != 9{
                         considered.push_back(n);
                     }
-                    if nh == 9 {
-                        map.remove(&n);
-                    }
                 }
             }
         }
