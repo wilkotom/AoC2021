@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, VecDeque, BinaryHeap};
 
 #[derive(Debug,Copy,Clone,Hash,Eq,PartialEq)]
 struct Coordinate {
@@ -7,6 +7,12 @@ struct Coordinate {
 }
 fn main() {
     let data = std::fs::read_to_string("./input.txt").unwrap();
+    let (basins, map) = part1(data);
+    println!("Part 2: {}", part2(basins, map));
+
+}
+
+fn part1(data: String) -> (Vec<Coordinate>, HashMap<Coordinate,isize>) {
     let mut map: HashMap<Coordinate,isize> = HashMap::new();
     for (y, line) in data.split("\n").enumerate() {
         for (x, c) in line.chars().enumerate(){
@@ -30,12 +36,11 @@ fn main() {
         }
     }
     println!("Part 1: {}", total);
-    println!("Part 2: {}", part2(basins, map));
-
+    (basins, map)
 }
 
 fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
-    let mut basin_sizes: HashMap<Coordinate, isize> = HashMap::new();
+    let mut basin_sizes: BinaryHeap<isize> = BinaryHeap::new();
     for startpoint in basins {
         let mut considered: VecDeque<Coordinate> = VecDeque::new();
         considered.push_back(startpoint);
@@ -54,11 +59,9 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
                 }
             }
         }
-        basin_sizes.insert(startpoint, size);
+        basin_sizes.push(size);
     }
-    let mut sizes = basin_sizes.values().collect::<Vec<_>>();
-    sizes.sort_by(|a, b| b.cmp(a));
-    sizes[0] * sizes[1] * sizes[2]
+    basin_sizes.pop().unwrap() * basin_sizes.pop().unwrap() * basin_sizes.pop().unwrap()
 }
 
 fn get_neighbours(c: &Coordinate) -> Vec<Coordinate> {
