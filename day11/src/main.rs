@@ -35,7 +35,7 @@ fn main() {
         let mut flashed = true ; 
         while flashed {
             flashed = false;
-                for loc in locations {
+            for loc in locations {
                 let mut octopus = map.get_mut(loc).unwrap();
                 if octopus.energy > 9 {
                     flash_count += 1;
@@ -48,8 +48,7 @@ fn main() {
                                 neighbour.energy +=1;
                             }
                         }
-                    }
-                    
+                    }    
                 }
             }
         }
