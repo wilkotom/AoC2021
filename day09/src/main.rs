@@ -9,7 +9,6 @@ fn main() {
     let data = std::fs::read_to_string("./input.txt").unwrap();
     let (basins, map) = part1(data);
     println!("Part 2: {}", part2(basins, map));
-
 }
 
 fn part1(data: String) -> (Vec<Coordinate>, HashMap<Coordinate,isize>) {
@@ -49,6 +48,7 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
             let c = considered.pop_front().unwrap();
             if map.contains_key(&c){
                 size +=1;
+                
                 let height = *map.get(&c).unwrap();
                 map.remove(&c);
                 for n in get_neighbours(&c) {
