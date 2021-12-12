@@ -54,6 +54,7 @@ fn contains_two_identical_lowers( visited: &[String]) -> bool {
     let mut seen: HashSet<String> = HashSet::new();
     for place in visited {
         if place.to_uppercase() != *place {
+
             if seen.contains(place) {
                 return true;
             }
