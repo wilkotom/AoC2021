@@ -14,15 +14,8 @@ fn main() {
         if !routes.contains_key(&b) {
             routes.insert(b.clone(), Vec::new());
         }
-        if a == "start" || b == "end" {
-            routes.get_mut(&a).unwrap().push(b);
-        } else if b == "start" || a == "end" {
-            routes.get_mut(&b).unwrap().push(a);
-
-        } else {
-            routes.get_mut(&a).unwrap().push(b.clone());
-            routes.get_mut(&b).unwrap().push(a);
-        }
+        routes.get_mut(&a).unwrap().push(b.clone());
+        routes.get_mut(&b).unwrap().push(a);
     }
     let valid_paths_part_1 = find_paths(vec!(String::from("start")), &routes, false);
     println!("Part 1: {:?}", valid_paths_part_1.len());
@@ -40,7 +33,8 @@ fn find_paths(visited: Vec<String>, routes: &HashMap<String, Vec<String>>, part2
         // if we've seen two identical small caves before, recurse as if we were running part 1
         let part2 = part2 && !contains_two_identical_lowers(&visited);
         for next_dest in routes.get(last).unwrap() {
-            if !visited.contains(next_dest) || next_dest.to_uppercase() == *next_dest || part2 {
+            // never visit start more than once
+            if next_dest != "start" && (!visited.contains(next_dest) || next_dest.to_uppercase() == *next_dest || part2) {
                 let mut next_visited = visited.clone();
                 next_visited.push(next_dest.clone());
                 results.append(&mut find_paths(next_visited, routes, part2));
