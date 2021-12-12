@@ -77,8 +77,6 @@ fn main() {
             found = true;
         }
     }
-println!("\u{033}[38;2;255;82;197;48;2;155;106;0mHello")
-
 }
 
 
@@ -104,6 +102,7 @@ fn print_grid(max_x: isize, max_y: isize, floor_map: &HashMap<Coordinate, Octopu
         ]
     );
     for y in 0..max_y {
+
         for x in 0..max_x {
             print!("{}███", colours.get(&floor_map.get(&Coordinate{x,y}).unwrap().energy).unwrap());
         } 
