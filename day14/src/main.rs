@@ -16,7 +16,6 @@ fn main() {
 }
 
 fn part2(polymer: String, mappings: &HashMap<String, char>, iterations: i32) -> i64 {
-    // let mut pairs: HashMap<&str, char>;
     let mut pair_count: HashMap<String, i64> = HashMap::new();
     for i in 0..polymer.len() -1 { 
         let pair = (&polymer[i..i+2]).to_string();
@@ -40,7 +39,6 @@ fn part2(polymer: String, mappings: &HashMap<String, char>, iterations: i32) -> 
     let counts = char_counts_part_2(&pair_count, polymer.chars().next().unwrap(), polymer.chars().last().unwrap());
     let mut counts = counts.values().collect::<Vec<_>>();
     counts.sort();
-    // println!("Part 2 {}", counts[counts.len() -1] - counts[0]);
     counts[counts.len() -1] - counts[0]
 
 }

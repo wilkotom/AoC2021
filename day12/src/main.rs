@@ -14,7 +14,7 @@ fn main() {
         if !routes.contains_key(&b) {
             routes.insert(b.clone(), Vec::new());
         }
-        routes.get_mut(&a).unwrap().push(b.clone());
+        routes.get_mut(&a).unwrap().push(b.to_owned());
         routes.get_mut(&b).unwrap().push(a);
     }
     let valid_paths_part_1 = find_paths(vec!(String::from("start")), &routes, false);

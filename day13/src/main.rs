@@ -60,12 +60,13 @@ fn main() {
         }
     }
     println!("Part 1 answer: {}", part1.unwrap());
-    print_paper(&paper, &max_x, &max_y);
+    print_paper(&paper, max_x, max_y);
+
 }
 
-fn print_paper(paper: &HashSet<Coordinate>, max_x: &i64, max_y: &i64) {
-    for y in 0..*max_y {
-        for x in 0..*max_x {
+fn print_paper(paper: &HashSet<Coordinate>, max_x: i64, max_y: i64) {
+    for y in 0..max_y {
+        for x in 0..max_x {
             print!("{}", if paper.contains(&Coordinate{x,y}) {"██"} else {"  "});
         }
         println!();
