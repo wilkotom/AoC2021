@@ -10,7 +10,7 @@ fn main() {
         mappings.insert(words.next().unwrap().to_string(), words.next().unwrap().chars().nth(0).unwrap());
     }
     let original_poly = polymer.clone();
-    println!("Part 2 {}", part2(polymer, &mappings, 10));
+    println!("Part 1 {}", part2(polymer, &mappings, 10));
     println!("Part 2 {}", part2(original_poly, &mappings, 40));
     
 }
