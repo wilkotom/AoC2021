@@ -45,23 +45,22 @@ fn main() {
             }
         }      
     }
-    println!("Part 1: {}", part1(&map, max_x, max_y));
-    println!("Part 2: {}", part1(&map, max_x*5, max_y*5));
+    println!("Part 1: {}", shortest_route(&map, Coordinate{x: max_x-1, y:max_y-1}));
+    println!("Part 2: {}", shortest_route(&map, Coordinate{x: max_x *5 -1, y:max_y*5 -1}));
 }
 
 
-fn part1(map: &HashMap<Coordinate,isize>, max_x: isize, max_y: isize) -> isize {
+fn shortest_route(map: &HashMap<Coordinate,isize>, goal: Coordinate) -> isize {
 
     let mut costs: HashMap<Coordinate, isize> = HashMap::new();
     let mut heap = BinaryHeap::new();
     
     let start = Coordinate{x:0,y:0};
-    let goal = Coordinate{x: max_x-1, y: max_y -1};
+    // let goal = Coordinate{x: max_x-1, y: max_y -1};
     
     heap.push(Square{cost:0, coordinate: start});
 
     while let Some(square) = heap.pop() {
-        // let square = heap.pop().unwrap();
         if square.coordinate == goal{
             return square.cost;
         }
