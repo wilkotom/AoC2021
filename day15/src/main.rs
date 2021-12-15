@@ -30,9 +30,7 @@ fn main() {
     let mut map: HashMap<Coordinate,isize> = HashMap::new();
     let mut max_x: isize = 0;
     let max_y = data.split('\n').count() as isize;
-    for y_mul in 0..5
-     {
-        
+    for y_mul in 0..5 {
         for (y, line) in data.split('\n').enumerate() {
             max_x = line.len() as isize;
             let y_offset = y_mul * max_y;
@@ -56,7 +54,6 @@ fn shortest_route(map: &HashMap<Coordinate,isize>, goal: Coordinate) -> isize {
     let mut heap = BinaryHeap::new();
     
     let start = Coordinate{x:0,y:0};
-    // let goal = Coordinate{x: max_x-1, y: max_y -1};
     
     heap.push(Square{cost:0, coordinate: start});
 
