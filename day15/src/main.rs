@@ -60,8 +60,8 @@ fn part1(map: &HashMap<Coordinate,isize>, max_x: isize, max_y: isize) -> isize {
     
     heap.push(Square{cost:0, coordinate: start});
 
-    while !heap.is_empty() {
-        let square = heap.pop().unwrap();
+    while let Some(square) = heap.pop() {
+        // let square = heap.pop().unwrap();
         if square.coordinate == goal{
             return square.cost;
         }
