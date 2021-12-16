@@ -1,56 +1,67 @@
 use std::{str::Chars, iter::Peekable};
 
+struct Packet {
+    version: i64,
+    result: i64
+}
+
 fn main() {
     let data = hex_to_binary(&std::fs::read_to_string("./input.txt").unwrap());
     let mut packet = data.chars().peekable();
-    println!("Part 1 {}", parse_packet(&mut packet, 1));
-    let mut packet = data.chars().peekable();
-    println!("Part 2 {}", part2(&mut packet));
+    let result = parse_packet(&mut packet);
+    println!("Part 1 {}", result.version);
+    println!("Part 2 {}", result.result);
 }
 
 
-fn parse_packet(packet: &mut Peekable<Chars>, mut packets: i32) -> i64{
-
-    let mut version_total = 0;
-    while packets > 0 {
-        let version = i64::from_str_radix(&take_n(packet, 3), 2).unwrap();
-        let type_id = i64::from_str_radix(&take_n(packet, 3), 2).unwrap();
-
-        // println!("{} {}", version, type_id);
-        if type_id == 4 { // literal packet
-            let mut result: String = String::new();
-            let mut first_byte = 1;
-            while first_byte == 1{
-                    let next_chunk = take_n(packet, 5);
-                    result.push_str(&next_chunk[1..]);
-                    first_byte = i32::from_str_radix(&next_chunk[0..1], 2).unwrap();
+fn parse_packet(packet: &mut Peekable<Chars>) -> Packet {
+    let mut version = bits_to_val(packet, 3);
+    let type_id = bits_to_val(packet, 3);
+    let result = if type_id == 4 { // literal packet
+        let mut result = 0;
+        let mut first_nybble = true;
+        while first_nybble {
+                let next_chunk = bits_to_val(packet, 5);
+                result <<= 4;
+                result += next_chunk & !16;
+                first_nybble = (next_chunk & 16) == 16;
+        }
+        result
+    } else { // operator packet
+        let mut values:Vec<i64> = Vec::new();
+        if bits_to_val(packet, 1) == 0 {
+            // next 15 bits are total length in bits of sub-packet
+            let packet_bit_count = bits_to_val(packet, 15) as usize;
+            let next_chars = next_n_bit_string(packet, packet_bit_count);
+            let mut packet_bits = next_chars.chars().peekable();
+            while packet_bits.peek().is_some() {
+                let next_packet = parse_packet(&mut packet_bits);
+                values.push(next_packet.result);
+                version += next_packet.version;
             }
 
-            // return i64::from_str_radix(&result, 2).unwrap()
-        } else { // operator packet
-
-            if take_n(packet, 1) == "0" {
-                // next 15 bits are total length in bits of sub-packet
-                let packet_bit_count = usize::from_str_radix(&take_n(packet, 15), 2).unwrap();
-                let next_chars = take_n(packet, packet_bit_count);
-                let mut packet_bits = next_chars.chars().peekable();
-                while packet_bits.peek().is_some() {
-                    version_total += parse_packet(&mut packet_bits, 1);
-                }
-
-            } else {
-                // next 11 bits are total number of sub-packets
-                let sub_packet_count = i32::from_str_radix(&take_n(packet, 11), 2).unwrap();
-                version_total += parse_packet(packet, sub_packet_count);
-                
+        } else {
+            // next 11 bits are total number of sub-packets
+            let mut sub_packet_count = bits_to_val(packet, 11);
+            while sub_packet_count > 0 {
+                let next_packet = parse_packet(packet);
+                values.push(next_packet.result);
+                version += next_packet.version;
+                sub_packet_count -=1
             }
         }
-        // println!("{}", version);
-        version_total += version;
-        packets -= 1;
-
-    }
-    version_total
+        match type_id {
+            0 => values.iter().sum::<i64>(),
+            1 => values.iter().product::<i64>(),
+            2 => *values.iter().min().unwrap(),
+            3 => *values.iter().max().unwrap(),
+            5 => if values[0] > values[1] {1} else {0}
+            6 => if values[0] < values[1] {1} else {0}
+            7 => if values[0] == values[1] {1} else {0}
+            _ => unreachable!()
+        }
+    };
+    Packet{version, result}
 }
 
 fn hex_to_binary(hex: &str) -> String {
@@ -63,73 +74,24 @@ fn hex_to_binary(hex: &str) -> String {
     result
 }
 
-fn take_n(chars: &mut Peekable<Chars>, mut n: usize) -> String{
+fn bits_to_val(chars: &mut Peekable<Chars>, mut n: usize) -> i64{
+    let mut result = 0;
+    while n > 0 {
+        result <<= 1;
+        result += if chars.next().unwrap() == '1' {1} else {0};
+        n -= 1
+    }
+    result
+}
 
+fn next_n_bit_string(chars: &mut Peekable<Chars>, mut n: usize) -> String{
+    // When we recurse, we need to pass a Peekable<Char> of a certain length to treat
+    // as if it were the whole. Building a String and then deconstricting it again is 
+    // a nasty hack to avoid lifetime issues with slices.
     let mut result = String::new();
     while n > 0 {
         result.push(chars.next().unwrap());
         n -= 1
     }
-
     result
-
-}
-
-
-
-fn part2(packet: &mut Peekable<Chars>) -> i64 {
-    let version = i64::from_str_radix(&take_n(packet, 3), 2).unwrap();
-    let type_id = i64::from_str_radix(&take_n(packet, 3), 2).unwrap();
-
-    // println!("{} {}", version, type_id);
-    if type_id == 4 { // literal packet
-        let mut result: String = String::new();
-        let mut first_byte = 1;
-        while first_byte == 1{
-                let next_chunk = take_n(packet, 5);
-                result.push_str(&next_chunk[1..]);
-                first_byte = i32::from_str_radix(&next_chunk[0..1], 2).unwrap();
-        }
-
-        i64::from_str_radix(&result, 2).unwrap()
-    } else { // operator packet
-        let mut values:Vec<i64> = Vec::new();
-        if take_n(packet, 1) == "0" {
-            // next 15 bits are total length in bits of sub-packet
-            let packet_bit_count = usize::from_str_radix(&take_n(packet, 15), 2).unwrap();
-            let next_chars = take_n(packet, packet_bit_count);
-            let mut packet_bits = next_chars.chars().peekable();
-            while packet_bits.peek().is_some() {
-                values.push(part2(&mut packet_bits));
-            }
-
-        } else {
-            // next 11 bits are total number of sub-packets
-            let mut sub_packet_count = i32::from_str_radix(&take_n(packet, 11), 2).unwrap();
-            while sub_packet_count > 0 {
-                values.push(part2(packet));
-                sub_packet_count -=1
-            }
-            
-        }
-        // println!("{:?}", values);
-        match type_id {
-            0 => {
-                values.iter().sum::<i64>()
-            }
-            1 => {
-                values.iter().product::<i64>()
-            }
-            2 => {*values.iter().min().unwrap()}
-            3 => {*values.iter().max().unwrap()}
-            5 => if values[0] > values[1] {1} else {0}
-            6 => if values[0] < values[1] {1} else {0}
-            7 => if values[0] == values[1] {1} else {0}
-            _ => unreachable!()
-        }
-        
-    }
-
-
-    
 }
