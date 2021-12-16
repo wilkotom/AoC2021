@@ -1,7 +1,7 @@
 use std::{str::Chars, iter::Peekable};
 
-struct Packet {
-    version: i64,
+struct PacketResult {
+    version_total: i64,
     result: i64
 }
 
@@ -9,13 +9,13 @@ fn main() {
     let data = hex_to_binary(&std::fs::read_to_string("./input.txt").unwrap());
     let mut packet = data.chars().peekable();
     let result = parse_packet(&mut packet);
-    println!("Part 1 {}", result.version);
+    println!("Part 1 {}", result.version_total);
     println!("Part 2 {}", result.result);
 }
 
 
-fn parse_packet(packet: &mut Peekable<Chars>) -> Packet {
-    let mut version = bits_to_val(packet, 3);
+fn parse_packet(packet: &mut Peekable<Chars>) -> PacketResult {
+    let mut version_total = bits_to_val(packet, 3);
     let type_id = bits_to_val(packet, 3);
     let result = if type_id == 4 { // literal packet
         let mut result = 0;
@@ -37,7 +37,7 @@ fn parse_packet(packet: &mut Peekable<Chars>) -> Packet {
             while packet_bits.peek().is_some() {
                 let next_packet = parse_packet(&mut packet_bits);
                 values.push(next_packet.result);
-                version += next_packet.version;
+                version_total += next_packet.version_total;
             }
 
         } else {
@@ -46,7 +46,7 @@ fn parse_packet(packet: &mut Peekable<Chars>) -> Packet {
             while sub_packet_count > 0 {
                 let next_packet = parse_packet(packet);
                 values.push(next_packet.result);
-                version += next_packet.version;
+                version_total += next_packet.version_total;
                 sub_packet_count -=1
             }
         }
@@ -61,7 +61,7 @@ fn parse_packet(packet: &mut Peekable<Chars>) -> Packet {
             _ => unreachable!()
         }
     };
-    Packet{version, result}
+    PacketResult{version_total, result}
 }
 
 fn hex_to_binary(hex: &str) -> String {
