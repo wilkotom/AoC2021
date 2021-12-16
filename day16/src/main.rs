@@ -19,12 +19,12 @@ fn parse_packet(packet: &mut Peekable<Chars>) -> PacketResult {
     let type_id = bits_to_val(packet, 3);
     let result = if type_id == 4 { // literal packet
         let mut result = 0;
-        let mut first_nybble = true;
-        while first_nybble {
+        let mut last_nybble = false;
+        while !last_nybble {
                 let next_chunk = bits_to_val(packet, 5);
                 result <<= 4;
                 result += next_chunk & !16;
-                first_nybble = (next_chunk & 16) == 16;
+                last_nybble = (next_chunk & 16) == 0;
         }
         result
     } else { // operator packet
