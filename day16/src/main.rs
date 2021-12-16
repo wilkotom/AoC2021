@@ -1,4 +1,4 @@
-use std::{str::Chars, iter::Peekable, os::unix::net::UnixDatagram};
+use std::{str::Chars, iter::Peekable};
 
 fn main() {
     let data = hex_to_binary(&std::fs::read_to_string("./input.txt").unwrap());
