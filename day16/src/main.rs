@@ -39,7 +39,6 @@ fn parse_packet(packet: &mut Peekable<Chars>) -> PacketResult {
                 values.push(next_packet.result);
                 version_total += next_packet.version_total;
             }
-
         } else {
             // next 11 bits are total number of sub-packets
             let mut sub_packet_count = bits_to_val(packet, 11);
