@@ -23,7 +23,7 @@ fn parse_packet(packet: &mut Peekable<Chars>) -> PacketResult {
         while !last_nybble {
                 let next_chunk = bits_to_val(packet, 5);
                 result <<= 4;
-                result += next_chunk & !16;
+                result |= next_chunk & !16;
                 last_nybble = (next_chunk & 16) == 0;
         }
         result
