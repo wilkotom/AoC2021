@@ -110,41 +110,39 @@ fn main() {
 
     let scanner_ids = scanners.keys().copied().collect::<Vec<_>>();
     while !all_aligned(&scanners) {
-        for _ in 0..24 {
-            for scanner_id in scanner_ids.clone() {
-                let scanner = &scanners[&scanner_id];
-                if let Some(scanner_location) = scanner.location {
-                    let beacons = scanner.oriented_beacons();
-                    for starting_point in scanner.oriented_beacons() {
-                        let fixed_constellation = constellation(&starting_point, &beacons);
-                        for candidate_id in scanner_ids.clone() {
-                            let candidate = scanners.get_mut(&candidate_id).unwrap();
-                            if candidate.location.is_some() {
-                                continue;
-                            }
-                            for target_starting_point in candidate.oriented_beacons() {
-                                let target_constellation = constellation(&target_starting_point, &candidate.oriented_beacons());
-                                let intersection = fixed_constellation.intersection(&target_constellation).count(); 
-                                if intersection == 12 {
-                                    let start_relative = target_starting_point;
-                                    let target_location = scanner_location + (starting_point - start_relative);
-                                    candidate.location = Some(target_location);
-                                    break
-                                }
+        'outer: for scanner_id in scanner_ids.clone() {
+            let scanner = &scanners[&scanner_id];
+            if let Some(scanner_location) = scanner.location {
+                let beacons = scanner.oriented_beacons();
+                for starting_point in scanner.oriented_beacons() {
+                    let fixed_constellation = constellation(&starting_point, &beacons);
+                    for candidate_id in scanner_ids.clone() {
+                        let candidate = scanners.get_mut(&candidate_id).unwrap();
+                        if candidate.location.is_some() {
+                            continue;
+                        }
+                        for target_starting_point in candidate.oriented_beacons() {
+                            let target_constellation = constellation(&target_starting_point, &candidate.oriented_beacons());
+                            let intersection = fixed_constellation.intersection(&target_constellation).count(); 
+                            if intersection == 12 {
+                                let start_relative = target_starting_point;
+                                let target_location = scanner_location + (starting_point - start_relative);
+                                candidate.location = Some(target_location);
+                                break 'outer
                             }
                         }
-
                     }
                 }
-            
             }
-            for scanner_id in scanner_ids.clone() {
-                let scanner = scanners.get_mut(&scanner_id).unwrap();
-                if scanner.location.is_none() {
-                    scanner.orientation = (scanner.orientation +1) % 24 ;
-                }
+        
+        }
+        for scanner_id in scanner_ids.clone() {
+            let scanner = scanners.get_mut(&scanner_id).unwrap();
+            if scanner.location.is_none() {
+                scanner.orientation = (scanner.orientation +1) % 24 ;
             }
         }
+        
     }
 
     let mut canonical_beacons: HashSet<Coordinate> = HashSet::new();
