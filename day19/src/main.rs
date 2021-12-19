@@ -9,7 +9,6 @@ struct Coordinate {
 
 impl Display for Coordinate {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-
         write!(f, "({},{},{})", self.x, self.y, self.z)
     }
 }
@@ -28,7 +27,6 @@ impl Add for Coordinate{
 
 impl Sub for Coordinate{
     type Output = Self;
-
     fn sub(self, other: Self) -> Self {
         Self {
             x: self.x - other.x,
@@ -79,7 +77,6 @@ struct Scanner {
     beacons: Vec<Coordinate>,
     id: i32,
     orientation: i32,
-    oriented: bool
 }
 
 impl Scanner {
@@ -108,8 +105,7 @@ fn main() {
         }
         let location = if id == 0 { Some(Coordinate{x:0, y:0, z:0}) } else {None};
         let orientation = 0;
-        let oriented = id == 0;
-        scanners.insert(id, Scanner{location, beacons, id, orientation, oriented});
+        scanners.insert(id, Scanner{location, beacons, id, orientation});
     }    
 
     let scanner_ids = scanners.keys().copied().collect::<Vec<_>>();
@@ -123,7 +119,7 @@ fn main() {
                         let fixed_constellation = constellation(&starting_point, &beacons);
                         for candidate_id in scanner_ids.clone() {
                             let candidate = scanners.get_mut(&candidate_id).unwrap();
-                            if candidate.oriented {
+                            if candidate.location.is_some() {
                                 continue;
                             }
                             for target_starting_point in candidate.oriented_beacons() {
@@ -133,7 +129,6 @@ fn main() {
                                     let start_relative = target_starting_point;
                                     let target_location = scanner_location + (starting_point - start_relative);
                                     candidate.location = Some(target_location);
-                                    candidate.oriented = true;
                                     break
                                 }
                             }
@@ -145,7 +140,7 @@ fn main() {
             }
             for scanner_id in scanner_ids.clone() {
                 let scanner = scanners.get_mut(&scanner_id).unwrap();
-                if !scanner.oriented {
+                if scanner.location.is_none() {
                     scanner.orientation = (scanner.orientation +1) % 24 ;
                 }
             }
@@ -178,7 +173,7 @@ fn main() {
 
 fn all_aligned(scanners: &HashMap<i32, Scanner>) -> bool {
     for scanner in scanners.values() {
-        if !scanner.oriented {
+        if scanner.location.is_none() {
             return false;
         }
     }
