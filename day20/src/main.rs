@@ -59,7 +59,7 @@ fn main() {
 }
 
 
-fn generation(grid: HashSet<Coordinate>, lookup: &Vec<bool>, grid_type: GridType) -> (HashSet<Coordinate>, GridType) {
+fn generation(grid: HashSet<Coordinate>, lookup: &[bool], grid_type: GridType) -> (HashSet<Coordinate>, GridType) {
     
     let mut min_y = isize::MAX;
     let mut min_x = isize::MAX;
