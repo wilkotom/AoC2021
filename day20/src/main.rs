@@ -121,9 +121,6 @@ fn generation(grid: HashSet<Coordinate>, lookup: &Vec<bool>, grid_type: GridType
                     }
                 }
             }
-
-            
-            // println!("{:?} {} {}", centre, result_num, lookup[result_num])
         }
     }
     let result_type = if !lookup[0] { GridType::LitPixels } else {
