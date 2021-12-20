@@ -1,4 +1,5 @@
-use std::{fs::read_to_string, collections::HashSet};
+use std::fs::read_to_string;
+use hashbrown::HashSet;
 
 #[derive(Debug,Copy,Clone,Hash,Eq,PartialEq)]
 struct Coordinate {
@@ -47,8 +48,6 @@ fn main() {
         }
     }
     let mut grid_type = GridType::LitPixels;
-    println!("{}", grid.len());
-
     for _ in 0..GENERATIONS {
         let res = generation(grid, &lookup, grid_type);
         grid = res.0;
@@ -84,40 +83,33 @@ fn generation(grid: HashSet<Coordinate>, lookup: &[bool], grid_type: GridType) -
             let mut result_num = 0;
             for coord in window {
                 result_num <<= 1;
-                if ! lookup[0] && grid.contains(&coord) {
-                        result_num+=1
-                    
-                } else {
-                    match grid_type {
-                        GridType::LitPixels => {
-                            if grid.contains(&coord) {
-                                result_num+=1;
-                            }
-                        }
-                        GridType::UnlitPixels => {
-                            if !grid.contains(&coord) {
-                                result_num+=1;
-                            }
-    
-                        }
-                    }
-                }
-            }
-            if ! lookup[0] {
-                if lookup[result_num] {
-                    result.insert(centre);
-                }
-            } else {
                 match grid_type {
                     GridType::LitPixels => {
-                        if !lookup[result_num] {
-                            result.insert(centre);
+                        if grid.contains(&coord) {
+                            result_num+=1;
                         }
                     }
                     GridType::UnlitPixels => {
+                        if !grid.contains(&coord) {
+                            result_num+=1;
+                        }
+
+                    }
+                }
+            }
+            match grid_type {
+                GridType::LitPixels => {
+                    if ! lookup[0] {
                         if lookup[result_num] {
                             result.insert(centre);
                         }
+                    } else if !lookup[result_num] {
+                        result.insert(centre);
+                    } 
+                }
+                GridType::UnlitPixels => {
+                    if lookup[result_num] {
+                        result.insert(centre);
                     }
                 }
             }
