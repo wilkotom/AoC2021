@@ -23,8 +23,8 @@ struct Player {
 }
 
 fn main() {
-    let player1 = Player{square: 4, score:0};
-    let player2 = Player{square: 8, score:0};
+    let player1 = Player{square: 7, score:0};
+    let player2 = Player{square: 5, score:0};
     println!("Part 1: {}", part1(player1, player2));
     let part2_res = part2(player1, player2);
     println!("Part 2: {}", part2_res.0.max(part2_res.1));
@@ -55,15 +55,16 @@ fn part2(player1: Player, player2: Player) -> (i128, i128) {
     if player2.score >= 21 {
        (0,1)    
    } else {
-       let die_results = [3, 4, 5, 4, 5, 6, 5, 6, 7, 4, 5, 6, 5, 6, 7, 6, 7, 8, 5, 6, 7, 6, 7, 8, 7, 8, 9];
+       // Pairs of number of squares to move forward and the number of different dice combinations that result in that distance
+       let die_results = [(3,1), (4,3), (5,6), (6,7), (7,6), (8,3), (9,1)];
        let mut player1_wins = 0;
        let mut player2_wins = 0;
-       for forward in die_results {
+       for (forward, freq) in die_results {
            let next_square = (player1.square + forward -1 ) % 10 + 1;
            let next_score = player1.score + next_square;
            let (player2_quantum, player1_quantum) = part2(player2, Player{square: next_square, score: next_score});
-           player1_wins += player1_quantum;
-           player2_wins += player2_quantum;
+           player1_wins += player1_quantum * freq;
+           player2_wins += player2_quantum * freq;
        } 
        (player1_wins, player2_wins)
    }
