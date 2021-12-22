@@ -15,7 +15,7 @@ struct Coordinate {
 fn main() {
     let input = std::fs::read_to_string("./input.txt").unwrap();
     let split_data = input.split("\n\n").collect::<Vec<_>>();
-    let bingo_numbers = split_data[0].split(",").map(|x| x.parse::<isize>().unwrap()).collect::<Vec<_>>();
+    let bingo_numbers = split_data[0].split(',').map(|x| x.parse::<isize>().unwrap()).collect::<Vec<_>>();
     let mut cards: Vec<HashMap<isize,BingoCardSquare>> = Vec::new();
 
     for card in &split_data[1..] {

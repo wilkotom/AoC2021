@@ -1,4 +1,5 @@
-use std::{collections::{HashMap, HashSet}, fmt::Display, ops::{Add, Sub}};
+use std::{fmt::Display, ops::{Add, Sub}};
+use hashbrown::{HashSet, HashMap};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 struct Coordinate {
@@ -134,7 +135,6 @@ fn main() {
                     }
                 }
             }
-        
         }
         for scanner_id in scanner_ids.clone() {
             let scanner = scanners.get_mut(&scanner_id).unwrap();
@@ -142,7 +142,6 @@ fn main() {
                 scanner.orientation = (scanner.orientation +1) % 24 ;
             }
         }
-        
     }
 
     let mut canonical_beacons: HashSet<Coordinate> = HashSet::new();

@@ -4,12 +4,12 @@ fn main() {
     let input = std::fs::read_to_string("./input.txt").unwrap();
     let mut counter = 0;
     let mut total = 0;
-    for line in input.split("\n") {
+    for line in input.split('\n') {
         let mut number_mappings: HashMap<i32,HashSet<char>> = HashMap::new();
         let mut split = line.split(" | ");
         let input_section = split.next().unwrap();
         let output_section = split.next().unwrap();
-        let mut unconsidered = input_section.split(" ").collect::<VecDeque<_>>();
+        let mut unconsidered = input_section.split(' ').collect::<VecDeque<_>>();
         while number_mappings.len() < 10 {
             let word = unconsidered.pop_front().unwrap();
             let word_set = word.chars().collect::<HashSet<_>>();
@@ -47,7 +47,7 @@ fn main() {
             }
         }
         let mut output = 0;
-        for word in output_section.split(" ") {
+        for word in output_section.split(' ') {
             if word.len() >= 2 && word.len() <= 4 || word.len() == 7  {
                 counter +=1;
             } 

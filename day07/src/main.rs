@@ -1,5 +1,5 @@
 fn main() {
-    let input = std::fs::read_to_string("./input.txt").unwrap().split(",").map(|v| v.parse::<isize>().unwrap()).collect::<Vec<_>>();
+    let input = std::fs::read_to_string("./input.txt").unwrap().split(',').map(|v| v.parse::<isize>().unwrap()).collect::<Vec<_>>();
     let smallest = *input.iter().min().unwrap_or(&isize::MIN);
     let largest = *input.iter().max().unwrap_or(&isize::MAX);
     let mut min_fuel_part1 = isize::MAX;

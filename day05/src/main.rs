@@ -9,7 +9,7 @@ fn main() {
     let data = std::fs::read_to_string("./input.txt").unwrap();
     let mut part1_map: HashMap<Coordinate,isize> = HashMap::new();
     let mut part2_map: HashMap<Coordinate,isize> = HashMap::new();
-    for line in data.split("\n"){
+    for line in data.split('\n'){
         let mut points = line.split(" -> ");
         let start = to_coordinate(points.next().unwrap());
         let end = to_coordinate(points.next().unwrap());
@@ -20,7 +20,7 @@ fn main() {
             }
         } else { 
             let x_step = if start.x < end.x {1} else {-1};
-            let y_step = if start.y < end.y {1} else if start.y > end.y {-1} else {0};
+            let y_step = (end.y - start.y).signum();
             let mut x = start.x;
             let mut y = start.y;
             while (x <= end.x && x_step > 0) ||  (x >= end.x && x_step < 0) {

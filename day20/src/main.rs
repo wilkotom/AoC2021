@@ -53,7 +53,6 @@ fn main() {
         grid = res.0;
         grid_type = res.1;
     }
-
     println!("{}", grid.len());
 }
 

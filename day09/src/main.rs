@@ -5,6 +5,13 @@ struct Coordinate {
     x: isize,
     y: isize
 }
+
+impl Coordinate {
+    fn get_neighbours(self) -> Vec<Coordinate> {
+        vec![Coordinate{x: self.x-1, y: self.y},Coordinate{x: self.x+1, y: self.y}, Coordinate{x: self.x, y: self.y+1}, Coordinate{x: self.x, y: self.y-1} ]
+    }
+}
+
 fn main() {
     let data = std::fs::read_to_string("./input.txt").unwrap();
     let (basins, map) = part1(data);
@@ -13,7 +20,7 @@ fn main() {
 
 fn part1(data: String) -> (Vec<Coordinate>, HashMap<Coordinate,isize>) {
     let mut map: HashMap<Coordinate,isize> = HashMap::new();
-    for (y, line) in data.split("\n").enumerate() {
+    for (y, line) in data.split('\n').enumerate() {
         for (x, c) in line.chars().enumerate(){
             map.insert(Coordinate { x: x as isize, y: y as isize}, String::from(c).parse::<isize>().unwrap());
         }
@@ -22,8 +29,8 @@ fn part1(data: String) -> (Vec<Coordinate>, HashMap<Coordinate,isize>) {
     let mut total = 0;
     for square in map.keys() {
         let mut found = true;
-        let height = map.get(&square).unwrap();
-        for n in get_neighbours(&square) {
+        let height = map.get(square).unwrap();
+        for n in square.get_neighbours() {
             if height >= map.get(&n).unwrap_or(&isize::MAX) {
                 found = false;
                 break;
@@ -44,14 +51,14 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
         let mut considered: VecDeque<Coordinate> = VecDeque::new();
         considered.push_back(startpoint);
         let mut size = 0;
-        while considered.len() > 0 {
+        while !considered.is_empty() {
             let c = considered.pop_front().unwrap();
             if map.contains_key(&c){
                 size +=1;
                 
                 let height = *map.get(&c).unwrap();
                 map.remove(&c);
-                for n in get_neighbours(&c) {
+                for n in c.get_neighbours() {
                     let nh = *map.get(&n).unwrap_or(&isize::MAX);
                     if nh > height && nh < 9{
                         considered.push_back(n);
@@ -64,6 +71,3 @@ fn part2(basins: Vec<Coordinate>, mut map: HashMap<Coordinate, isize>) -> isize{
     basin_sizes.pop().unwrap() * basin_sizes.pop().unwrap() * basin_sizes.pop().unwrap()
 }
 
-fn get_neighbours(c: &Coordinate) -> Vec<Coordinate> {
-    vec![Coordinate{x: c.x-1, y: c.y},Coordinate{x: c.x+1, y: c.y}, Coordinate{x: c.x, y: c.y+1}, Coordinate{x: c.x, y: c.y-1} ]
-}

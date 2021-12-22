@@ -7,11 +7,18 @@ struct Coordinate {
     y: isize
 }
 
+impl Coordinate {
+    fn get_neighbours(self) -> Vec<Coordinate> {
+        vec![Coordinate{x: self.x-1, y: self.y},Coordinate{x: self.x+1, y: self.y}, Coordinate{x: self.x, y: self.y+1}, Coordinate{x: self.x, y: self.y-1} ]
+    }
+}
+
 #[derive(Debug,Copy,Clone,Hash,Eq,PartialEq)]
 struct Square {
     cost: isize,
     coordinate: Coordinate
 }
+
 
 impl Ord for Square {
     fn cmp(&self, other: &Self) -> Ordering {
@@ -62,7 +69,7 @@ fn shortest_route(map: &HashMap<Coordinate,isize>, goal: Coordinate) -> isize {
             return square.cost;
         }
         if square.cost <= *costs.get(&square.coordinate).unwrap_or(&isize::MAX) { 
-            for neighbour in get_neighbours(&square.coordinate) {
+            for neighbour in square.coordinate.get_neighbours() {
                 if map.contains_key(&neighbour) {
                     let next_square = Square{cost: square.cost + map.get(&neighbour).unwrap(), coordinate: neighbour};
                     if next_square.cost < *costs.get(&neighbour).unwrap_or(&isize::MAX){
@@ -75,8 +82,4 @@ fn shortest_route(map: &HashMap<Coordinate,isize>, goal: Coordinate) -> isize {
 
     }
     unreachable!()
-}
-
-fn get_neighbours(c: &Coordinate) -> Vec<Coordinate> {
-    vec![Coordinate{x: c.x-1, y: c.y},Coordinate{x: c.x+1, y: c.y}, Coordinate{x: c.x, y: c.y+1}, Coordinate{x: c.x, y: c.y-1} ]
 }
