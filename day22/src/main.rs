@@ -85,53 +85,11 @@ impl Cuboid {
 }
 fn main() {
     let data =  read_to_string("./input.txt").unwrap();
-
-    part1(&data);
-    part2(&data);
-
+    reboot_reactor(&data, false);
+    reboot_reactor(&data, true);
 }
 
-fn part1(data: &String) {
-
-    let mut reactor: HashSet<Coordinate> = HashSet::new();
-
-    for line in data.split('\n') {
-        let mut tokens = line.split_ascii_whitespace();
-        let state = tokens.next().unwrap();
-        let bounding_box = tokens.next().unwrap();
-        let mut coords = bounding_box.split(',');
-        let (start_x, end_x) = coords_to_min_max(coords.next().unwrap());
-        let (start_y, end_y) = coords_to_min_max(coords.next().unwrap());
-        let (start_z, end_z) = coords_to_min_max(coords.next().unwrap());
-        if start_x.abs() < 50 {
-            for x in start_x..end_x+1 {
-                for y in start_y..end_y+1 {
-                    for z in start_z..end_z+1 {
-                        match state {
-                            "on" => {reactor.insert(Coordinate{x,y,z})},
-                            "off" => {reactor.remove(&Coordinate{x,y,z})},
-                            _ => unreachable!()
-                        };
-                    }
-                }
-            }
-        }
-    }
-
-    println!("Part 1 {}", reactor.len());
-
-
-}
-
-fn coords_to_min_max( axis: &str) -> (isize,isize) {
-
-    let mut nums = axis[2..].split("..");
-    (nums.next().unwrap().parse::<isize>().unwrap(),nums.next().unwrap().parse::<isize>().unwrap())
-}
-
-
-
-fn part2(data: &String) {
+fn reboot_reactor(data: &str, part2: bool) {
 
     let mut reactor: Vec<Cuboid> = Vec::new();
 
@@ -145,20 +103,28 @@ fn part2(data: &String) {
         let (start_z, end_z) = coords_to_min_max(coords.next().unwrap());
         let top_left_back = Coordinate{x:start_x, y: start_y, z: start_z};
         let bottom_right_front = Coordinate{x: end_x, y: end_y, z: end_z};
-        match state {
-            "on" => {
-                reactor = remove_points(reactor, Cuboid{top_left_back, bottom_right_front});
-                reactor.push(Cuboid{top_left_back, bottom_right_front})
-                    },
-            "off" => { 
-                reactor = remove_points(reactor, Cuboid{top_left_back, bottom_right_front});},
-            _ => unreachable!()
-        };
+        if start_x.abs() < 50 || part2 {
+            match state {
+                "on" => {
+                    reactor = remove_points(reactor, Cuboid{top_left_back, bottom_right_front});
+                    reactor.push(Cuboid{top_left_back, bottom_right_front})
+                        },
+                "off" => { 
+                    reactor = remove_points(reactor, Cuboid{top_left_back, bottom_right_front});},
+                _ => unreachable!()
+            };
+        }
     }
     
     println!("Lit cubes: {:?}", reactor.iter().map(|x| x.volume()).sum::<isize>());
 }
 
+
+fn coords_to_min_max( axis: &str) -> (isize,isize) {
+
+    let mut nums = axis[2..].split("..");
+    (nums.next().unwrap().parse::<isize>().unwrap(),nums.next().unwrap().parse::<isize>().unwrap())
+}
 
 fn remove_points(reactor: Vec<Cuboid>, block_to_remove:Cuboid) -> Vec<Cuboid> {
     let mut new_reactor: Vec<Cuboid> = Vec::new();
