@@ -20,8 +20,8 @@ enum Square {
 #[derive(Clone,Debug, PartialEq, Eq, Hash)]
 struct GameState {
     cost: isize,
-    waiting_spots: Vec<Square>,
-    bins: Vec<Vec<Amphipod>>
+    corridor: Vec<Square>,
+    rooms: Vec<Vec<Amphipod>>
 }
 
 impl Ord for GameState {
@@ -41,10 +41,10 @@ fn main() {
     let data = std::fs::read_to_string("./test.txt").unwrap();
     let mut lines = data.split('\n');
     let _ = lines.next();
-    let corridor = lines.next().unwrap();
-    let mut waiting_spots = Vec::new();
-    for c in corridor.chars() {
-        waiting_spots.push(
+    let corridor_str = lines.next().unwrap();
+    let mut corridor = Vec::new();
+    for c in corridor_str.chars() {
+        corridor.push(
             match c {
                 '#' => Square::Forbidden,
                 '.' => Square::Empty,
@@ -57,27 +57,27 @@ fn main() {
         )
     }
     for i in [3,5,7,9] {
-        waiting_spots[i] = Square::Forbidden;
+        corridor[i] = Square::Forbidden;
     }
-    let mut bins: Vec<Vec<Amphipod>> = vec![vec![], vec![], vec![], vec![]];
-    let mut bin_capacity = 0;
+    let mut rooms: Vec<Vec<Amphipod>> = vec![vec![], vec![], vec![], vec![]];
+    let mut room_capacity = 0;
     'outer: for line in lines {
         for pos in [3,5,7,9] {
 
             match line.chars().nth(pos) {
                 Some('#') => break 'outer,
                 Some('.') => {}
-                Some('A') => {bins[(pos-1) / 2 -1].insert(0,Amphipod::Amber)},
-                Some('B') => {bins[(pos-1) / 2 -1].insert(0,Amphipod::Bronze)},
-                Some('C') => {bins[(pos-1) / 2 -1].insert(0,Amphipod::Copper)},
-                Some('D') => {bins[(pos-1) / 2 -1].insert(0,Amphipod::Desert)},
+                Some('A') => {rooms[(pos-1) / 2 -1].insert(0,Amphipod::Amber)},
+                Some('B') => {rooms[(pos-1) / 2 -1].insert(0,Amphipod::Bronze)},
+                Some('C') => {rooms[(pos-1) / 2 -1].insert(0,Amphipod::Copper)},
+                Some('D') => {rooms[(pos-1) / 2 -1].insert(0,Amphipod::Desert)},
                 _ => unreachable!(),
             };
         }
-        bin_capacity +=1;
+        room_capacity +=1;
     }
 
-    let starting_state = GameState{ cost: 0, waiting_spots, bins};
+    let starting_state = GameState{ cost: 0, corridor, rooms};
 
 
     let mut heap = BinaryHeap::new();
@@ -92,15 +92,15 @@ fn main() {
     let mut seen: HashSet<(Vec<Square>, Vec<Vec<Amphipod>>)> = HashSet::new();
     while let Some(state) = heap.pop() {
 
-        if is_winning_position(&state.bins, bin_capacity as usize) {
+        if is_winning_position(&state.rooms, room_capacity as usize) {
             println!("Winner! {}", state.cost);
             return;
-        } else if seen.contains(&(state.waiting_spots.clone(), state.bins.clone())) {
+        } else if seen.contains(&(state.corridor.clone(), state.rooms.clone())) {
             continue;
         }
-        seen.insert((state.waiting_spots.clone(), state.bins.clone()));
+        seen.insert((state.corridor.clone(), state.rooms.clone()));
         
-        for (i, n) in state.waiting_spots.iter().enumerate() {
+        for (i, n) in state.corridor.iter().enumerate() {
             
             if let Square::Occupied(amphipod) = n {
                 let target_bin_number = match &amphipod {
@@ -109,7 +109,7 @@ fn main() {
                     Amphipod::Copper => 2,
                     Amphipod::Desert => 3,
                 };
-                let target_bin = state.bins.get(target_bin_number).unwrap();
+                let target_bin = state.rooms.get(target_bin_number).unwrap();
 
                 if target_bin.is_empty() || target_bin.iter().filter(|a| a != &amphipod).count() == 0 {
 
@@ -117,20 +117,20 @@ fn main() {
                     let target_index = (target_bin_number+1) *2 +1;
                     if i < target_index {
                         for n in i+1 .. target_index + 1 {
-                            if state.waiting_spots[n] != Square::Forbidden && state.waiting_spots[n] != Square::Empty {
+                            if state.corridor[n] != Square::Forbidden && state.corridor[n] != Square::Empty {
                                 reachable = false;
                             }
                         }
                     } else {
                         for n in (target_index ..i ).rev() {
-                            if state.waiting_spots[n] != Square::Forbidden && state.waiting_spots[n] != Square::Empty {
+                            if state.corridor[n] != Square::Forbidden && state.corridor[n] != Square::Empty {
                                 reachable = false;
                             }
                         }
                     }
                     
                     if reachable {
-                        let steps =  ((target_bin_number as isize +1) * 2 + 1 - i as isize).abs() + (bin_capacity - target_bin.len() as isize);
+                        let steps =  ((target_bin_number as isize +1) * 2 + 1 - i as isize).abs() + (room_capacity - target_bin.len() as isize);
                         let score = steps * match &amphipod {
                             Amphipod::Amber => 1,
                             Amphipod::Bronze => 10,
@@ -138,8 +138,8 @@ fn main() {
                             Amphipod::Desert => 1000,
                         };
                         let mut new_state = state.clone();
-                        new_state.waiting_spots[i] = Square::Empty;
-                        new_state.bins[target_bin_number].push(*amphipod);
+                        new_state.corridor[i] = Square::Empty;
+                        new_state.rooms[target_bin_number].push(*amphipod);
                         new_state.cost += score;
                         heap.push(new_state);
                     }
@@ -147,31 +147,31 @@ fn main() {
             }
         }
 
-        for (i, bin) in state.bins.iter().enumerate() {
+        for (i, bin) in state.rooms.iter().enumerate() {
             if !bin.is_empty() {
                 let top_item = bin.last().unwrap();
                 if top_item != &bin_requirements[&i] || bin.iter().filter(|x| *x != &bin_requirements[&i]).count()  > 0 {
                     let corridor_point = (i+1) * 2 +1;
                     let mut potential_destinations: Vec<usize> = Vec::new();
                     for n in (1..corridor_point).rev() {
-                        if state.waiting_spots[n] == Square::Empty {
+                        if state.corridor[n] == Square::Empty {
                             potential_destinations.push(n);
-                        } else if state.waiting_spots[n] != Square::Forbidden {
+                        } else if state.corridor[n] != Square::Forbidden {
                             break;
                         }
                     }
 
                     for n in corridor_point..12 {
-                        if state.waiting_spots[n] == Square::Empty {
+                        if state.corridor[n] == Square::Empty {
                             potential_destinations.push(n);
-                        } else if state.waiting_spots[n] != Square::Forbidden {
+                        } else if state.corridor[n] != Square::Forbidden {
                             break;
                         }
                     }
                     for d in potential_destinations {
                         let mut new_state = state.clone();
-                        let mut move_cost = bin_capacity - bin.len() as isize +1;
-                        let moved = new_state.bins[i].pop().unwrap();
+                        let mut move_cost = room_capacity - bin.len() as isize +1;
+                        let moved = new_state.rooms[i].pop().unwrap();
                         let distance = (corridor_point as isize - d as isize).abs();
                         move_cost += distance;
                         move_cost *=  match &moved {
@@ -180,7 +180,7 @@ fn main() {
                             Amphipod::Copper => 100,
                             Amphipod::Desert => 1000,
                         };
-                        new_state.waiting_spots[d] = Square::Occupied(moved);
+                        new_state.corridor[d] = Square::Occupied(moved);
                         new_state.cost += move_cost;
                         heap.push(new_state);
                     }
