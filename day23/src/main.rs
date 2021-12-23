@@ -1,5 +1,4 @@
-use std::collections::{BinaryHeap, HashMap};
-use std::cmp::Ordering;
+use std::{collections::BinaryHeap, cmp::Ordering};
 use hashbrown::HashSet;
 
 #[derive(Copy,Clone,Debug, PartialEq, Eq, Hash)]
@@ -83,38 +82,34 @@ fn main() {
     let mut heap = BinaryHeap::new();
     heap.push(starting_state);
 
-    let bin_requirements: HashMap<usize,Amphipod> = HashMap::from([
-        (0, Amphipod::Amber),
-        (1, Amphipod::Bronze),
-        (2, Amphipod::Copper),
-        (3, Amphipod::Desert)]);
+    let bin_requirements = vec![Amphipod::Amber, Amphipod::Bronze, Amphipod::Copper, Amphipod::Desert];
 
     let mut seen: HashSet<(Vec<Square>, Vec<Vec<Amphipod>>)> = HashSet::new();
     while let Some(state) = heap.pop() {
 
-        if is_winning_position(&state.rooms, room_capacity as usize) {
+        if seen.contains(&(state.corridor.clone(), state.rooms.clone())) {
+            continue;
+        } else if is_winning_position(&state.rooms, room_capacity as usize) {
             println!("Winner! {}", state.cost);
             return;
-        } else if seen.contains(&(state.corridor.clone(), state.rooms.clone())) {
-            continue;
-        }
+        } 
         seen.insert((state.corridor.clone(), state.rooms.clone()));
         
         for (i, n) in state.corridor.iter().enumerate() {
             
             if let Square::Occupied(amphipod) = n {
-                let target_bin_number = match &amphipod {
+                let target_room_number = match &amphipod {
                     Amphipod::Amber => 0,
                     Amphipod::Bronze => 1,
                     Amphipod::Copper => 2,
                     Amphipod::Desert => 3,
                 };
-                let target_bin = state.rooms.get(target_bin_number).unwrap();
+                let target_room = state.rooms.get(target_room_number).unwrap();
 
-                if target_bin.is_empty() || target_bin.iter().filter(|a| a != &amphipod).count() == 0 {
+                if target_room.is_empty() || target_room.iter().filter(|a| a != &amphipod).count() == 0 {
 
                     let mut reachable = true;
-                    let target_index = (target_bin_number+1) *2 +1;
+                    let target_index = (target_room_number+1) *2 +1;
                     if i < target_index {
                         for n in i+1 .. target_index + 1 {
                             if state.corridor[n] != Square::Forbidden && state.corridor[n] != Square::Empty {
@@ -130,7 +125,7 @@ fn main() {
                     }
                     
                     if reachable {
-                        let steps =  ((target_bin_number as isize +1) * 2 + 1 - i as isize).abs() + (room_capacity - target_bin.len() as isize);
+                        let steps =  ((target_room_number as isize +1) * 2 + 1 - i as isize).abs() + (room_capacity - target_room.len() as isize);
                         let score = steps * match &amphipod {
                             Amphipod::Amber => 1,
                             Amphipod::Bronze => 10,
@@ -139,7 +134,7 @@ fn main() {
                         };
                         let mut new_state = state.clone();
                         new_state.corridor[i] = Square::Empty;
-                        new_state.rooms[target_bin_number].push(*amphipod);
+                        new_state.rooms[target_room_number].push(*amphipod);
                         new_state.cost += score;
                         heap.push(new_state);
                     }
@@ -148,9 +143,8 @@ fn main() {
         }
 
         for (i, bin) in state.rooms.iter().enumerate() {
-            if !bin.is_empty() {
-                let top_item = bin.last().unwrap();
-                if top_item != &bin_requirements[&i] || bin.iter().filter(|x| *x != &bin_requirements[&i]).count()  > 0 {
+            if let Some(top_item) = bin.last() {
+                if top_item != &bin_requirements[i] || bin.iter().filter(|x| *x != &bin_requirements[i]).count()  > 0 {
                     let corridor_point = (i+1) * 2 +1;
                     let mut potential_destinations: Vec<usize> = Vec::new();
                     for n in (1..corridor_point).rev() {
@@ -191,13 +185,9 @@ fn main() {
 
 
     }
-
-    // println!("{:?}", heap);
-
 }
 
 fn is_winning_position(bins: &[Vec<Amphipod>], depth: usize) -> bool {
-    // let depth = 2;
     bins[0].iter().filter(|a| **a == Amphipod::Amber).count() == depth &&
     bins[1].iter().filter(|a| **a == Amphipod::Bronze).count() == depth &&
     bins[2].iter().filter(|a| **a == Amphipod::Copper).count() == depth &&
