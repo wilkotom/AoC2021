@@ -1,28 +1,7 @@
 use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
-
 use hashbrown::HashSet;
 
-// use hashbrown::HashMap;
-
-
-
-#[derive(Copy,Clone,Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-struct Coordinate {
-    x: isize,
-    y: isize
-}
-
-impl Coordinate {
-    fn get_neighbours(&self) -> Vec<Coordinate> {
-        let x = self.x;
-        let y = self.y;
-        vec![Coordinate{x: x+1, y}, 
-             Coordinate{x: x-1 , y},
-             Coordinate{x, y:  y+ 1},
-             Coordinate{x, y:  y+ -1}]
-    }
-}
 #[derive(Copy,Clone,Debug, PartialEq, Eq, Hash)]
 enum Amphipod {
     Amber,
@@ -45,15 +24,6 @@ struct GameState {
     bins: Vec<Vec<Amphipod>>
 }
 
-#[derive(Copy,Clone,Debug, PartialEq, Eq, Hash)]
-
-enum BinType {
-    Blocked,
-    Amphipods(Amphipod)
-}
-
-
-
 impl Ord for GameState {
     fn cmp(&self, other: &Self) -> Ordering {
         other.cost.cmp(&self.cost)
@@ -73,7 +43,7 @@ fn main() {
     let _ = lines.next();
     let corridor = lines.next().unwrap();
     let mut waiting_spots = Vec::new();
-    for (i, c) in corridor.chars().enumerate() {
+    for c in corridor.chars() {
         waiting_spots.push(
             match c {
                 '#' => Square::Forbidden,
@@ -106,9 +76,6 @@ fn main() {
         }
         bin_capacity +=1;
     }
-
-    // let bins = vec![vec![Amphipod::Amber,Amphipod::Bronze], vec![Amphipod::Desert, Amphipod::Copper], vec![Amphipod::Copper, Amphipod::Bronze], vec![Amphipod::Amber, Amphipod::Desert]];
-    // let bin_capacity:isize = 2;
 
     let starting_state = GameState{ cost: 0, waiting_spots, bins};
 
@@ -180,7 +147,7 @@ fn main() {
             }
         }
 
-        for (i, mut bin) in state.bins.iter().enumerate() {
+        for (i, bin) in state.bins.iter().enumerate() {
             if !bin.is_empty() {
                 let top_item = bin.last().unwrap();
                 if top_item != &bin_requirements[&i] || bin.iter().filter(|x| *x != &bin_requirements[&i]).count()  > 0 {
